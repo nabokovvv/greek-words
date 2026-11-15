@@ -1,0 +1,237 @@
+/* Greek words — the look.
+
+   One idea carries the design: the blue enamel street plates with white
+   lettering that hang on every corner in Cyprus. A word is a plate; a letter
+   is a house-number tile. Everything around them stays quiet and takes its
+   colours from the Telegram theme, so the plates are what the eye lands on. */
+
+:root {
+  --enamel: #1d4fa3;
+  --enamel-deep: #163d80;
+  --white: #f7f8f5;
+  --lemon: #f2c230;
+  --bougainvillea: #c4307a;
+  --olive: #3f8f5a;
+
+  --bg: var(--tg-theme-bg-color, #0f1c2e);
+  --text: var(--tg-theme-text-color, #f2f4f3);
+  --hint: var(--tg-theme-hint-color, #8d9bb0);
+  --surface: var(--tg-theme-secondary-bg-color, #182840);
+
+  --radius-plate: 14px;
+  --gap: 12px;
+  --font: "Commissioner", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: var(--tg-theme-bg-color, #f2f4f3);
+    --text: var(--tg-theme-text-color, #16202c);
+    --hint: var(--tg-theme-hint-color, #66758a);
+    --surface: var(--tg-theme-secondary-bg-color, #e4e8e7);
+  }
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 17px/1.45 var(--font);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+#app {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 18px 16px calc(28px + env(safe-area-inset-bottom));
+  min-height: 100%;
+}
+
+button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
+button:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--lemon); outline-offset: 3px; }
+
+/* ---- text ------------------------------------------------------------- */
+
+.title { font-size: 28px; line-height: 1.15; font-weight: 800; margin: 0; letter-spacing: -0.01em; }
+.sub { color: var(--hint); margin: 4px 0 0; }
+.small { font-size: 14px; color: var(--hint); }
+
+.head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.back {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px 8px 8px; margin: -8px 0 8px -8px;
+  color: var(--hint); font-weight: 600; border-radius: 10px;
+}
+
+/* ---- the plate -------------------------------------------------------- */
+
+.plate {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  width: 100%;
+  min-height: 76px;
+  padding: 16px 22px;
+  border-radius: var(--radius-plate);
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 38%),
+    var(--enamel);
+  color: var(--white);
+  font-weight: 700; font-size: 26px; line-height: 1.15; text-align: center;
+  box-shadow: 0 2px 0 var(--enamel-deep), 0 6px 14px rgba(8, 20, 45, 0.28);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  user-select: none; -webkit-user-select: none;
+}
+/* the white line that runs inside the edge of every enamel sign */
+.plate::before {
+  content: ""; position: absolute; inset: 6px; border-radius: 9px;
+  border: 2px solid currentColor; opacity: 0.92; pointer-events: none;
+}
+/* four screws */
+.plate::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  --screw: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0 1.6px, rgba(0, 0, 0, 0.28) 1.7px 2.6px, transparent 2.7px);
+  background:
+    var(--screw) 13px 13px / 6px 6px no-repeat,
+    var(--screw) calc(100% - 13px) 13px / 6px 6px no-repeat,
+    var(--screw) 13px calc(100% - 13px) / 6px 6px no-repeat,
+    var(--screw) calc(100% - 13px) calc(100% - 13px) / 6px 6px no-repeat;
+}
+button.plate:active, .plate.pressed { transform: translateY(2px); box-shadow: 0 0 0 var(--enamel-deep), 0 2px 6px rgba(8, 20, 45, 0.3); }
+
+.plate.reverse { background: linear-gradient(155deg, #fff 0%, var(--white) 40%); color: var(--enamel); box-shadow: 0 2px 0 #c9cec9, 0 6px 14px rgba(8, 20, 45, 0.22); }
+.plate.small { min-height: 58px; padding: 12px 16px; font-size: 19px; }
+.plate.small::before { inset: 5px; border-radius: 9px; border-width: 1.5px; }
+.plate.small::after { display: none; }
+.plate .under { font-weight: 400; font-size: 14px; opacity: 0.85; margin-top: 3px; }
+
+.plate.right { background: var(--olive); color: var(--white); box-shadow: 0 2px 0 #2f6c44, 0 6px 14px rgba(8, 20, 45, 0.22); }
+.plate.wrong { background: var(--bougainvillea); color: var(--white); box-shadow: 0 2px 0 #9a2560, 0 6px 14px rgba(8, 20, 45, 0.22); }
+.plate.gone { opacity: 0; transform: scale(0.85); pointer-events: none; transition: opacity 0.28s ease, transform 0.28s ease; }
+.plate.locked { filter: saturate(0.25); opacity: 0.6; }
+.plate.picked { transform: translateY(-3px); box-shadow: 0 0 0 3px var(--lemon), 0 8px 18px rgba(8, 20, 45, 0.3); }
+
+/* a plate that was just tapped rings once */
+@keyframes ring {
+  0% { box-shadow: 0 0 0 0 rgba(242, 194, 48, 0.75), 0 6px 14px rgba(8, 20, 45, 0.28); }
+  100% { box-shadow: 0 0 0 16px rgba(242, 194, 48, 0), 0 6px 14px rgba(8, 20, 45, 0.28); }
+}
+.plate.ringing { animation: ring 0.5s ease-out; }
+
+@keyframes shake {
+  20% { transform: translateX(-7px); } 40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); } 80% { transform: translateX(3px); }
+}
+.shake { animation: shake 0.36s ease; }
+
+/* ---- house-number tiles (letters) -------------------------------------- */
+
+.tile {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  width: 52px; height: 58px; border-radius: 10px;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 40%), var(--enamel);
+  color: var(--white); font-weight: 800; font-size: 28px;
+  box-shadow: 0 2px 0 var(--enamel-deep), 0 4px 10px rgba(8, 20, 45, 0.26);
+  touch-action: none; user-select: none; -webkit-user-select: none;
+}
+.tile::before { content: ""; position: absolute; inset: 4px; border-radius: 7px; border: 1.5px solid currentColor; opacity: 0.9; pointer-events: none; }
+.tile.used { visibility: hidden; }
+.tile.dragging { position: fixed; z-index: 20; pointer-events: none; transform: scale(1.12) rotate(-3deg); }
+.tile.big { width: 128px; height: 128px; font-size: 62px; border-radius: 18px; }
+.tile.big::before { inset: 8px; border-radius: 12px; border-width: 2.5px; }
+
+.slot {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 52px; height: 58px; border-radius: 10px;
+  border: 2px dashed var(--hint); color: var(--text); font-weight: 800; font-size: 28px;
+}
+.slot.filled { border-style: solid; border-color: var(--enamel); background: var(--surface); }
+.slot.right { border-color: var(--olive); background: var(--olive); color: var(--white); }
+.slot.wrong { border-color: var(--bougainvillea); }
+.slot.over { border-color: var(--lemon); }
+
+.tray, .slots { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.slots { margin: 22px 0 26px; min-height: 58px; }
+
+/* ---- layout helpers ---------------------------------------------------- */
+
+.stack { display: flex; flex-direction: column; gap: var(--gap); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.center { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.spacer { height: 18px; }
+
+.word-row { display: flex; flex-direction: column; gap: 6px; }
+.word-note { padding: 0 6px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.word-note .emoji { font-size: 20px; }
+.word-note .hint { color: var(--hint); }
+
+/* segmented control: the pace of speech */
+.seg { display: inline-flex; background: var(--surface); border-radius: 12px; padding: 3px; }
+.seg button { padding: 7px 12px; border-radius: 9px; font-size: 14px; font-weight: 600; color: var(--hint); white-space: nowrap; }
+.controls { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 16px; }
+.controls .chips { margin: 0; }
+.seg button[aria-pressed="true"] { background: var(--enamel); color: var(--white); }
+
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 16px; }
+.chip { padding: 7px 14px; border-radius: 999px; background: var(--surface); font-size: 14px; font-weight: 600; color: var(--hint); }
+.chip span { margin-right: 6px; }
+.chip[aria-pressed="true"] { background: var(--lemon); color: #2a2204; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 54px; padding: 12px 20px; border-radius: 14px; font-weight: 700; font-size: 17px;
+  background: var(--surface); color: var(--text); width: 100%;
+}
+.btn.primary { background: var(--lemon); color: #2a2204; }
+.btn.no { background: transparent; box-shadow: inset 0 0 0 2px var(--bougainvillea); color: var(--text); }
+.btn.yes { background: var(--olive); color: var(--white); }
+.btn:active { transform: translateY(1px); }
+.row { display: flex; gap: var(--gap); }
+
+.progress { height: 6px; border-radius: 3px; background: var(--surface); overflow: hidden; margin: 2px 0 20px; }
+.progress > i { display: block; height: 100%; width: 0; background: var(--lemon); border-radius: 3px; transition: width 0.25s ease; }
+.progress.timer > i { transition: width 1s linear; background: var(--bougainvillea); }
+
+.prompt { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+.emoji-big { font-size: 56px; line-height: 1; margin: 6px 0 10px; }
+
+.speaker {
+  width: 132px; height: 132px; border-radius: 50%; margin: 10px auto 22px;
+  display: flex; align-items: center; justify-content: center; font-size: 54px;
+  background: var(--enamel); color: var(--white);
+  box-shadow: 0 0 0 6px var(--white), 0 0 0 9px var(--enamel), 0 10px 22px rgba(8, 20, 45, 0.35);
+}
+.speaker:active { transform: scale(0.97); }
+
+/* ---- flip card --------------------------------------------------------- */
+
+.card-zone { perspective: 1100px; height: 250px; margin: 6px 0 20px; position: relative; }
+.card { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1); touch-action: pan-y; }
+.card.flipped { transform: rotateY(180deg); }
+.card .face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; height: 100%; font-size: 34px; }
+.card .face.back { transform: rotateY(180deg); }
+.card.fly-right { transition: transform 0.3s ease-in, opacity 0.3s; transform: translateX(130%) rotate(18deg); opacity: 0; }
+.card.fly-left { transition: transform 0.3s ease-in, opacity 0.3s; transform: translateX(-130%) rotate(-18deg); opacity: 0; }
+.card .tap-hint { position: absolute; bottom: 22px; left: 0; right: 0; font-size: 13px; font-weight: 400; opacity: 0.75; }
+
+/* ---- result: lemons ---------------------------------------------------- */
+
+.lemons { display: flex; gap: 10px; justify-content: center; font-size: 58px; margin: 26px 0 10px; }
+.lemons span { display: inline-block; opacity: 0.18; filter: grayscale(1); }
+.lemons span.on { opacity: 1; filter: none; animation: drop 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) backwards; }
+.lemons span.on:nth-child(2) { animation-delay: 0.14s; }
+.lemons span.on:nth-child(3) { animation-delay: 0.28s; }
+@keyframes drop { from { transform: translateY(-46px) rotate(-25deg); opacity: 0; } }
+.score { font-size: 44px; font-weight: 800; line-height: 1.1; }
+.record { color: var(--lemon); font-weight: 700; min-height: 1.5em; }
+
+.empty { padding: 34px 10px; text-align: center; color: var(--hint); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
