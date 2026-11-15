@@ -1,7 +1,8 @@
 // The six games. Each takes {pool, finish} and calls finish(score, total).
 // `pool` is the learner's words: {el, ru, translit, emoji, a} (a = sound id).
 
-import { h, mount, onLeave, shuffle, sample, play, preload, ring, shake, haptic, wait } from "./core.js";
+import { h, mount, onLeave, shuffle, sample, play, preload, ring, shake, haptic, wait, fullForm,
+         nameOf } from "./core.js";
 
 const bar = () => {
   const fill = h("i");
@@ -34,12 +35,12 @@ export function cards({ pool, finish }) {
     if (i >= deck.length) return finish(known, deck.length);
     const w = deck[i];
     progress.set(i, deck.length);
-    const front = h("div", { class: "plate face" }, w.el,
+    const front = h("div", { class: "plate face" }, nameOf(w),
       w.translit && h("span", { class: "under" }, `[${w.translit}]`),
       h("span", { class: "tap-hint" }, "нажми, чтобы увидеть перевод"));
     const back = h("div", { class: "plate reverse face back" },
       w.emoji && h("span", { class: "emoji-big" }, w.emoji), w.ru);
-    const card = h("div", { class: "card", role: "button", tabindex: "0", "aria-label": w.el }, front, back);
+    const card = h("div", { class: "card", role: "button", tabindex: "0", "aria-label": fullForm(w) }, front, back);
 
     let startX = null, dx = 0, flipped = false, answered = false;
     const place = () => {
@@ -98,7 +99,8 @@ export function pairs({ pool, finish }) {
   const items = shuffle(words.flatMap((w) => [{ w, side: "el" }, { w, side: "ru" }]));
   const grid = h("div", { class: "grid2" });
   for (const item of items) {
-    const el = plate(item.side === "el" ? item.w.el : item.w.ru, `small ${item.side === "ru" ? "reverse" : ""}`);
+    const el = plate(item.side === "el" ? nameOf(item.w) : item.w.ru,
+      `small ${item.side === "ru" ? "reverse" : ""}`);
     item.node = el;
     el.addEventListener("click", () => tap(item));
     grid.append(el);
@@ -254,7 +256,8 @@ export function spell({ pool, finish }) {
         h("p", { class: "prompt" }, w.ru),
         h("button", { class: "chip", type: "button", onclick: () => play(w.a) },
           h("span", { "aria-hidden": "true" }, "🔊"), " послушать")),
-      h("div", { class: "slots" }, slots.map((s) => s.node)),
+      h("div", { class: "slots" }, w.article && h("span", { class: "art" }, w.article),
+        slots.map((s) => s.node)),
       h("div", { class: "tray" }, tiles.map((t) => t.node)),
       h("div", { class: "spacer" }),
       h("p", { class: "small center" }, "Нажимай на буквы по порядку или перетаскивай их. Две буквы лишние."));
@@ -345,7 +348,7 @@ export function blitz({ pool, finish }) {
     const others = otherRu(pool, w, 1);
     const truth = Math.random() < 0.5 || !others.length;
     const shown = truth ? w.ru : others[0];
-    const top = h("div", { class: "plate" }, w.el);
+    const top = h("div", { class: "plate" }, nameOf(w));
     const bottom = h("div", { class: "plate small reverse" }, shown);
     const answer = (yes) => {
       if (over) return;
@@ -369,6 +372,55 @@ export function blitz({ pool, finish }) {
   onLeave(() => { over = true; clearInterval(tick); });   // after mount: mount runs the previous screen's leavers
   requestAnimationFrame(() => { fill.style.width = `${(100 * (BLITZ_SECONDS - 1)) / BLITZ_SECONDS}%`; });
   next();
+}
+
+// ---- Άρθρα: ο, η or το? ----------------------------------------------------------
+
+export const SINGULAR = ["ο", "η", "το"];
+const GENDER = { "ο": "он", "η": "она", "το": "оно" };
+
+export function articles({ pool, finish }) {
+  const nouns = pool.filter((w) => SINGULAR.includes(w.article));
+  const rounds = sample(nouns, Math.min(10, nouns.length));
+  preload(rounds.map((w) => w.a));
+  const progress = bar();
+  let i = 0, right = 0;
+
+  function show() {
+    if (i >= rounds.length) return finish(right, rounds.length);
+    const w = rounds[i];
+    progress.set(i, rounds.length);
+    let answered = false;
+    const word = h("div", { class: "plate" }, w.el, h("span", { class: "under" }, w.ru));
+    const tiles = SINGULAR.map((article) => {
+      const el = h("button", { class: "tile wide", type: "button", "aria-label": `${article} — ${GENDER[article]}` }, article);
+      el.addEventListener("click", async () => {
+        if (answered) return;
+        answered = true;
+        const ok = article === w.article;
+        if (ok) right++;
+        haptic(ok ? "success" : "error");
+        el.classList.add(ok ? "right" : "wrong");
+        if (!ok) { shake(el); tiles[SINGULAR.indexOf(w.article)].classList.add("right"); }
+        word.replaceChildren(nameOf(w), h("span", { class: "under" }, `${w.ru} — ${GENDER[w.article]}`));
+        await Promise.race([play(w.a), wait(1800)]);   // hear it with the right article
+        await wait(ok ? 250 : 700);
+        i++;
+        show();
+      });
+      return el;
+    });
+    mount(progress.el,
+      h("div", { class: "center" },
+        h("div", { class: "emoji-big" }, w.emoji || "🏷"),
+        h("p", { class: "small" }, "Какой артикль у этого слова?")),
+      word,
+      h("div", { class: "spacer" }),
+      h("div", { class: "tray" }, tiles),
+      h("div", { class: "spacer" }),
+      h("p", { class: "small center" }, "ο — он, η — она, το — оно"));
+  }
+  show();
 }
 
 // ---- Αλφάβητο: a letter and its sound --------------------------------------------

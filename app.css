@@ -107,6 +107,8 @@ button.plate:active, .plate.pressed { transform: translateY(2px); box-shadow: 0 
 .plate.small { min-height: 58px; padding: 12px 16px; font-size: 19px; }
 .plate.small::before { inset: 5px; border-radius: 9px; border-width: 1.5px; }
 .plate.small::after { display: none; }
+.plate .art, .slots .art { font-weight: 400; opacity: 0.75; }
+.slots .art { font-size: 26px; align-self: center; margin-right: 2px; }
 .plate .under { font-weight: 400; font-size: 14px; opacity: 0.85; margin-top: 3px; }
 
 .plate.right { background: var(--olive); color: var(--white); box-shadow: 0 2px 0 #2f6c44, 0 6px 14px rgba(8, 20, 45, 0.22); }
@@ -141,6 +143,10 @@ button.plate:active, .plate.pressed { transform: translateY(2px); box-shadow: 0 
 .tile::before { content: ""; position: absolute; inset: 4px; border-radius: 7px; border: 1.5px solid currentColor; opacity: 0.9; pointer-events: none; }
 .tile.used { visibility: hidden; }
 .tile.dragging { position: fixed; z-index: 20; pointer-events: none; transform: scale(1.12) rotate(-3deg); }
+.tile.wide { width: 96px; height: 84px; font-size: 34px; border-radius: 14px; }
+.tile.wide::before { inset: 6px; border-radius: 9px; border-width: 2px; }
+.tile.wide.right { background: var(--olive); box-shadow: 0 2px 0 #2f6c44; }
+.tile.wide.wrong { background: var(--bougainvillea); box-shadow: 0 2px 0 #9a2560; }
 .tile.big { width: 128px; height: 128px; font-size: 62px; border-radius: 18px; }
 .tile.big::before { inset: 8px; border-radius: 12px; border-width: 2.5px; }
 

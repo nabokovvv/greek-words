@@ -7,7 +7,7 @@
 // the bot when the learner presses «Готово».
 
 import { tg, inTelegram, h, mount, setChrome, plural, store, haptic, PACES, getPace, setPace, play,
-         preload, stopSound, ring } from "./core.js";
+         preload, stopSound, ring, fullForm, nameOf } from "./core.js";
 import * as games from "./games.js";
 
 const params = new URLSearchParams(location.search);
@@ -29,6 +29,8 @@ const GAMES = [
   { id: "spell", el: "Γράμματα", ru: "собери слово из букв", need: 1 },
   { id: "listen", el: "Ακούω", ru: "узнай слово на слух", need: 4 },
   { id: "blitz", el: "Γρήγορα", ru: "блиц: полминуты «да» или «нет»", need: 4 },
+  { id: "articles", el: "Άρθρα", ru: "ο, η или το: какой род у слова", need: 4,
+    count: (words) => words.filter((w) => games.SINGULAR.includes(w.article)).length },
   { id: "letters", el: "Αλφάβητο", ru: "буквы и их звуки", need: 0 },
 ];
 
@@ -55,7 +57,7 @@ async function pool() {
   const seen = new Set(), words = [];
   for (const entry of chosen) {
     for (const w of (await lesson(entry.id)).words) {
-      if (!seen.has(w.el)) { seen.add(w.el); words.push(w); }
+      if (!seen.has(fullForm(w))) { seen.add(fullForm(w)); words.push(w); }
     }
   }
   return words;
@@ -117,7 +119,8 @@ async function screenWords() {
   let playingAll = false;
 
   const rows = data.words.map((w) => {
-    const node = h("button", { class: "plate", type: "button", "aria-label": `${w.el} — ${w.ru}` }, w.el);
+    const node = h("button", { class: "plate", type: "button", "aria-label": `${fullForm(w)} — ${w.ru}` },
+      nameOf(w));
     node.addEventListener("click", () => { playingAll = false; ring(node); haptic("light"); play(w.a); });
     return { w, node, row: h("div", { class: "word-row" }, node,
       h("div", { class: "word-note" },
@@ -168,10 +171,12 @@ async function screenHome() {
         onclick: () => { state.scope = id; screenHome(); } }, label)));
 
   const plates = GAMES.map((g) => {
-    const open = words.length >= g.need;
+    const have = g.count ? g.count(words) : words.length;
+    const open = have >= g.need;
     const best = store.get(`best:${g.id}`, null);
     const under = open ? g.ru + (best ? `, рекорд ${best}` : "")
-      : (lessons === 0 ? "откроется после первого урока" : `нужно слов: ${g.need}`);
+      : (lessons === 0 ? "откроется после первого урока"
+        : g.count ? "откроется, когда выучишь 4 слова с артиклем" : `нужно слов: ${g.need}`);
     const node = h("button", { class: `plate ${open ? "" : "locked"}`, type: "button", "aria-disabled": String(!open) },
       g.el, h("span", { class: "under" }, under));
     node.addEventListener("click", () => {

@@ -36,6 +36,14 @@ export function onLeave(fn) { leaving.push(fn); }
 /** A node shown above every screen until changed (the way back out of a game). */
 export function setChrome(make) { chrome = make; }
 
+/** «η μαμά»: a noun is always shown and spoken with its article. */
+export const fullForm = (w) => (w.article ? `${w.article} ${w.el}` : w.el);
+/** The same as nodes: the article lighter, so the eye lands on the word. */
+export function nameOf(w) {
+  return h("span", { class: "name" }, w.article && h("span", { class: "art" }, w.article),
+    w.article && " ", w.el);
+}
+
 export function shuffle(list) {
   const a = [...list];
   for (let i = a.length - 1; i > 0; i--) {
